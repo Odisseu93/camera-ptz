@@ -1,0 +1,29 @@
+services:
+  camera-ptz:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: camera-ptz:latest
+    container_name: camera-ptz
+    restart: unless-stopped
+    network_mode: "host"
+    env_file:
+      - .env
+    environment:
+      - WEB_NO_BROWSER=1
+      - WEB_PORT=${WEB_PORT:-8085}
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp:size=16M,noexec,nosuid
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.2'
+          memory: 256M
