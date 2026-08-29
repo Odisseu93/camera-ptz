@@ -45,3 +45,7 @@
 - Validate and bound all input parameters (e.g. PTZ coordinates, resolution dimensions, auth payloads).
 - Enforce in-memory rate limiting on authentication and camera control endpoints.
 - Apply security headers: Content-Security-Policy, X-Frame-Options DENY, X-Content-Type-Options nosniff.
+
+## Subagent & Model Selection Strategy
+- Default to smaller, faster models (`flash` / `flash_lite`) for subagents handling smaller, modular tasks (file edits, tests, research, git operations) to preserve quota and minimize latency.
+- Reserve heavier models only for top-level orchestration and complex planning.
