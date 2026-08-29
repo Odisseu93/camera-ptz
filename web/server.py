@@ -1,4 +1,4 @@
-"""Flask web server application and endpoints."""
+"""Flask web server application, security middleware, and route registration."""
 from __future__ import annotations
 
 import logging
@@ -7,6 +7,7 @@ from typing import Any
 
 from flask import Flask, Response, jsonify, send_from_directory
 
+from web.auth import auth_bp, login_required
 from web.browser import launch_browser_in_background
 from web.stream import get_stream_manager
 
@@ -18,6 +19,8 @@ def create_app() -> Flask:
     static_dir = os.path.join(os.path.dirname(__file__), "static")
     app = Flask(__name__, static_folder=static_dir, static_url_path="/static")
     app.config["SECRET_KEY"] = os.urandom(32)
+
+    app.register_blueprint(auth_bp)
 
     @app.after_request
     def set_security_headers(response: Response) -> Response:
@@ -32,7 +35,12 @@ def create_app() -> Flask:
         )
         return response
 
+    @app.route("/login", methods=["GET"])
+    def login_page() -> Any:
+        return send_from_directory(static_dir, "login.html")
+
     @app.route("/", methods=["GET"])
+    @login_required
     def index() -> Any:
         return send_from_directory(static_dir, "index.html")
 
@@ -41,6 +49,7 @@ def create_app() -> Flask:
         return jsonify({"status": "ok"})
 
     @app.route("/api/stream", methods=["GET"])
+    @login_required
     def video_stream() -> Response:
         manager = get_stream_manager()
         return Response(
@@ -68,6 +77,5 @@ def run_server(port: int = 8085, host: str = "0.0.0.0") -> int:
 
     launch_browser_in_background(url)
 
-    # Use single-process threaded server for low memory footprint
     app.run(host=host, port=port, threaded=True, debug=False)
     return 0
