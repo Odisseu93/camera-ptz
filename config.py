@@ -100,3 +100,25 @@ def candidate_ptz_urls(host: str) -> list[str]:
         f"http://{host}/onvif/deviceio_service",
         f"http://{host}:80/onvif2/PTZ",
     ]
+
+
+def load_startup_timeout() -> int:
+    load_dotenv(override=False)
+    raw = os.environ.get('STARTUP_TIMEOUT', '5').strip()
+    try:
+        val = int(raw)
+        return max(1, val)
+    except ValueError:
+        return 5
+
+
+def load_web_port() -> int:
+    load_dotenv(override=False)
+    raw = os.environ.get('WEB_PORT', '8085').strip()
+    try:
+        val = int(raw)
+        if 1 <= val <= 65535:
+            return val
+    except ValueError:
+        pass
+    return 8085
