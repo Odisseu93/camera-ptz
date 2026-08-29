@@ -6,6 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <title>Camera PTZ</title>
+  <link rel="stylesheet" href="/static/css/controls.css">
   <style>
     * {
       box-sizing: border-box;
@@ -31,18 +32,33 @@
       align-items: center;
       justify-content: center;
       background-color: #000;
+      overflow: hidden;
     }
     #camera-feed {
       max-width: 100%;
       max-height: 100%;
       object-fit: contain;
       user-select: none;
+      -webkit-user-select: none;
     }
   </style>
 </head>
 <body>
   <div id="stream-container">
     <img id="camera-feed" src="/api/stream" alt="Camera Stream" />
+
+    <!-- Left Joystick: Pan & Tilt -->
+    <div id="joystick-left-zone" class="joystick-zone">
+      <span class="joystick-label">Pan / Tilt</span>
+    </div>
+
+    <!-- Right Joystick: Zoom / Fine Tilt -->
+    <div id="joystick-right-zone" class="joystick-zone">
+      <span class="joystick-label">Ajuste</span>
+    </div>
   </div>
+
+  <script src="https://unpkg.com/nipplejs@0.10.2/dist/nipplejs.min.js"></script>
+  <script src="/static/js/controls.js"></script>
 </body>
 </html>
