@@ -9,6 +9,7 @@ from flask import Flask, Response, jsonify, send_from_directory
 
 from web.auth import auth_bp, login_required
 from web.browser import launch_browser_in_background
+from web.camera_settings import camera_bp
 from web.ptz import ptz_bp
 from web.stream import get_stream_manager
 
@@ -23,6 +24,7 @@ def create_app() -> Flask:
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(ptz_bp)
+    app.register_blueprint(camera_bp)
 
     @app.after_request
     def set_security_headers(response: Response) -> Response:
