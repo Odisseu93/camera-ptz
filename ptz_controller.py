@@ -182,17 +182,3 @@ class PTZController:
             return response.ok
         except Exception:  # noqa: BLE001
             return False
-
-    def set_flashlight(self, enabled: bool) -> bool:
-        """Toggle auxiliary illuminator / flashlight on compatible cameras."""
-        state_str = "On" if enabled else "Off"
-        candidates = [
-            f"tt:IRLamp|{state_str}",
-            f"tt:Lamp|{state_str}",
-            f"tt:Auxiliary1|{state_str}",
-            f"tt:Wiper|{state_str}",
-        ]
-        for cmd in candidates:
-            if self.send_auxiliary_command(cmd):
-                return True
-        return False

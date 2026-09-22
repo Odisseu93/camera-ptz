@@ -4,9 +4,6 @@
 (function() {
   'use strict';
 
-  let isAudioEnabled = false;
-  let isFlashlightEnabled = false;
-
   async function apiRequest(url, method = 'GET', body = null) {
     const options = {
       method,
@@ -54,39 +51,6 @@
     }
   }
 
-  async function toggleAudio() {
-    const btn = document.getElementById('btn-audio');
-    isAudioEnabled = !isAudioEnabled;
-    try {
-      await apiRequest('/api/camera/audio', 'POST', { enabled: isAudioEnabled });
-      if (btn) {
-        btn.classList.toggle('active', isAudioEnabled);
-        btn.setAttribute('title', isAudioEnabled ? 'Áudio: Ativo' : 'Áudio: Mudo');
-      }
-    } catch (err) {
-      isAudioEnabled = !isAudioEnabled;
-      console.warn('Failed to toggle audio:', err);
-    }
-  }
-
-  async function toggleFlashlight() {
-    const btn = document.getElementById('btn-flashlight');
-    isFlashlightEnabled = !isFlashlightEnabled;
-    try {
-      const res = await apiRequest('/api/camera/flashlight', 'POST', { enabled: isFlashlightEnabled });
-      if (!res.supported) {
-        alert('Esta câmera não suporta controle de lanterna/iluminador auxiliar.');
-        isFlashlightEnabled = false;
-      }
-      if (btn) {
-        btn.classList.toggle('active', isFlashlightEnabled);
-      }
-    } catch (err) {
-      isFlashlightEnabled = !isFlashlightEnabled;
-      console.warn('Failed to toggle flashlight:', err);
-    }
-  }
-
   async function loadResolutions() {
     const select = document.getElementById('select-resolution');
     if (!select) return;
@@ -131,8 +95,6 @@
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-fullscreen')?.addEventListener('click', toggleFullscreen);
     document.getElementById('btn-restart')?.addEventListener('click', restartStream);
-    document.getElementById('btn-audio')?.addEventListener('click', toggleAudio);
-    document.getElementById('btn-flashlight')?.addEventListener('click', toggleFlashlight);
     document.getElementById('btn-logout')?.addEventListener('click', handleLogout);
 
     const toggleSettings = document.getElementById('btn-toggle-settings');

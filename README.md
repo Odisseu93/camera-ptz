@@ -13,16 +13,13 @@ Lightweight, high-performance ONVIF PTZ controller and RTSP streaming server eng
 - **Dual Virtual Joysticks**: Low-latency directional pan/tilt and vertical adjustment powered by `nipplejs`.
 - **Camera Settings & Controls**:
   - Reconnect / restart stream with automatic retry.
-  - Audio toggle (default muted).
   - Fullscreen toggle (default enabled).
   - Dynamic resolution auto-detection and switching.
-  - Auxiliary flashlight / torch toggle (on compatible ONVIF cameras).
 - **Security-First Architecture**:
   - Password hashing with `bcrypt`.
   - Signed JWT session tokens in `HttpOnly; SameSite=Strict` cookies.
   - Sliding-window in-memory rate limiting against brute-force attacks.
   - Hardened HTTP security headers (CSP, X-Frame-Options DENY, nosniff).
-- **Automated Browser Launcher**: Automatically opens Chromium in `--app` mode with memory-limiting flags.
 - **Hardened Docker Support**: Multi-stage image (< 180MB), non-root execution (`appuser`), read-only root filesystem, dropped capabilities (`ALL`), and 512MB RAM bounds.
 
 ---
@@ -46,9 +43,6 @@ WEB_PASSWORD='your_web_password'
 # Video Stream Tuning
 MJPEG_FPS=15
 MJPEG_QUALITY=70
-
-# Optional Browser Override
-WEB_NO_BROWSER=0
 ```
 
 ---
