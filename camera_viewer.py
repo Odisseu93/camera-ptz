@@ -11,10 +11,10 @@ from ptz_controller import PTZController
 from rtsp_capture import open_rtsp_capture
 
 WINDOW = "Camera PTZ - arrows move | Q or Esc quits"
-UP_KEYS = {2490368, 82, ord("w"), ord("W")}
-DOWN_KEYS = {2621440, 84, ord("s"), ord("S")}
-LEFT_KEYS = {2424832, 81, ord("a"), ord("A")}
-RIGHT_KEYS = {2555904, 83, ord("d"), ord("D")}
+UP_KEYS = {65362, 82, ord("w"), ord("W")}
+DOWN_KEYS = {65364, 84, ord("s"), ord("S")}
+LEFT_KEYS = {65361, 81, ord("a"), ord("A")}
+RIGHT_KEYS = {65363, 83, ord("d"), ord("D")}
 _BOOT = "_CAMERA_PTZ_RTSP_READY"
 
 
@@ -44,9 +44,11 @@ def main() -> int:
 
     import cv2
 
-    cv2.namedWindow(WINDOW, cv2.WINDOW_NORMAL)
+    cv2.namedWindow(WINDOW,cv2.WINDOW_NORMAL)
+    cv2.setWindowProperty(WINDOW, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
     last_move = 0.0
+    
     move_interval = 0.18
 
     try:
