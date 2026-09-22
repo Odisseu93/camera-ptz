@@ -16,7 +16,6 @@ from config import (
 from camera_viewer import main as viewer_main
 from ptz_controller import PTZController
 from rtsp_capture import open_rtsp_capture
-from test_ptz import main as ptz_test_main
 
 _BOOT = "_CAMERA_PTZ_RTSP_READY"
 
@@ -123,6 +122,8 @@ def main() -> int:
     if command == "server":
         return run_web_server()
     if command == "ptz-test":
+        from test_ptz import main as ptz_test_main
+
         return ptz_test_main()
     if command == "smoke-test":
         return smoke_test()

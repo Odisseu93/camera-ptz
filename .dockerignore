@@ -13,7 +13,6 @@ htmlcov/
 docs/
 .agents/
 press_key.py
-test_ptz.py
 README.md
 CHANGELOG.md
 GEMINI.md
