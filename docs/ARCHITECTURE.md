@@ -46,4 +46,3 @@
 - `web/server.py`: Flask application factory, security headers, and route registration.
 - `web/auth.py`: JWT token generation, verification, and bcrypt password hashing.
 - `web/stream.py`: Thread-safe MJPEG frame generator.
-- `web/browser.py`: Chromium app-mode kiosk launcher with memory optimization flags.

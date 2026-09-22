@@ -25,7 +25,6 @@ WORKDIR /app
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    WEB_NO_BROWSER=1 \
     PATH="/install/bin:${PATH}" \
     PYTHONPATH="/install/lib/python3.12/site-packages:${PYTHONPATH}"
 
@@ -42,7 +41,7 @@ RUN groupadd -g 10001 appgroup && \
 COPY --from=builder /install /install
 
 # Copy application source code
-COPY --chown=appuser:appgroup app.py config.py camera_viewer.py ptz_controller.py rtsp_capture.py ./
+COPY --chown=appuser:appgroup app.py config.py camera_viewer.py test_ptz.py ptz_controller.py rtsp_capture.py ./
 COPY --chown=appuser:appgroup web/ ./web/
 
 USER appuser:appgroup

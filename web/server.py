@@ -8,7 +8,6 @@ from typing import Any
 from flask import Flask, Response, jsonify, send_from_directory
 
 from web.auth import auth_bp, login_required
-from web.browser import launch_browser_in_background
 from web.camera_settings import camera_bp
 from web.ptz import ptz_bp
 from web.stream import get_stream_manager
@@ -34,7 +33,7 @@ def create_app() -> Flask:
             "default-src 'self'; "
             "img-src 'self' data: blob:; "
             "style-src 'self' 'unsafe-inline'; "
-            "script-src 'self' 'unsafe-inline' https://unpkg.com; "
+            "script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; "
             "connect-src 'self';"
         )
         return response
@@ -70,7 +69,7 @@ def create_app() -> Flask:
 
 
 def run_server(port: int = 8085, host: str = "0.0.0.0") -> int:
-    """Run the Flask web server and launch browser kiosk."""
+    """Run the Flask web server."""
     logging.basicConfig(
         level=logging.INFO,
         format="[%(asctime)s] [%(levelname)s] %(name)s: %(message)s",
@@ -78,8 +77,6 @@ def run_server(port: int = 8085, host: str = "0.0.0.0") -> int:
     app = create_app()
     url = f"http://localhost:{port}"
     print(f"Servidor web da câmera iniciado em {url}")
-
-    launch_browser_in_background(url)
 
     app.run(host=host, port=port, threaded=True, debug=False)
     return 0

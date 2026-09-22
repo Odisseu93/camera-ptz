@@ -1,6 +1,6 @@
 ---
 name: web-architecture
-description: Specifications for the lightweight Flask web server, auth middleware, responsive UI, and browser launcher.
+description: Specifications for the lightweight Flask web server, auth middleware, and responsive UI.
 ---
 
 # Web Architecture Guide
@@ -16,4 +16,3 @@ description: Specifications for the lightweight Flask web server, auth middlewar
 - Mobile-first responsive layout with viewport meta tags.
 - Dual virtual joysticks powered by lightweight `nipplejs` for low-latency PTZ control.
 - Dark theme optimized for camera monitoring.
-- Automatic browser launcher: launches Chromium in `--app=http://localhost:PORT` mode with minimal memory flags.
