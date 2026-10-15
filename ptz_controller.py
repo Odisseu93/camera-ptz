@@ -143,3 +143,42 @@ class PTZController:
 
     def right(self) -> None:
         self.continuous_move(self.VELOCITY, 0)
+
+    def send_auxiliary_command(self, aux_data: str) -> bool:
+        """Send SendAuxiliaryCommand to ONVIF PTZ service."""
+        header_values = generate_soap_header_values(self.password)
+        headers = {
+            "Content-Type": (
+                'application/soap+xml; charset=utf-8; '
+                'action="http://www.onvif.org/ver20/ptz/wsdl/SendAuxiliaryCommand"'
+            ),
+            "Connection": "Close",
+        }
+        data = (
+            '<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope">'
+            "<s:Header>"
+            '<Security s:mustUnderstand="1" '
+            'xmlns="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">'
+            "<UsernameToken>"
+            f"<Username>{self.username}</Username>"
+            '<Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordDigest">'
+            f'{header_values["password_digest"]}</Password>'
+            '<Nonce EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary">'
+            f'{header_values["nonce"]}</Nonce>'
+            '<Created xmlns="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">'
+            f'{header_values["created"]}</Created>'
+            "</UsernameToken></Security></s:Header>"
+            '<s:Body xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            'xmlns:xsd="http://www.w3.org/2001/XMLSchema">'
+            '<SendAuxiliaryCommand xmlns="http://www.onvif.org/ver20/ptz/wsdl">'
+            f"<ProfileToken>{self.PROFILE_TOKEN}</ProfileToken>"
+            f"<AuxiliaryData>{aux_data}</AuxiliaryData>"
+            "</SendAuxiliaryCommand></s:Body></s:Envelope>"
+        )
+        try:
+            response = self.session.post(
+                self.onvif_ptz_url, headers=headers, data=data, timeout=3
+            )
+            return response.ok
+        except Exception:  # noqa: BLE001
+            return False

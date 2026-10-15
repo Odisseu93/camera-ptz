@@ -1,118 +1,96 @@
-# camera-ptz
+# Camera PTZ — Real-time IP Camera Viewer & Web Server
 
-Python project to view an RTSP stream and control camera PTZ (ONVIF) from the keyboard.
+Lightweight, high-performance ONVIF PTZ controller and RTSP streaming server engineered for low-resource hardware (e.g. Intel Core i5 1st Gen, 4GB RAM).
 
-## Project Structure
+---
 
-- `app.py`: main CLI entrypoint (`viewer`, `ptz-test`, `smoke-test`).
-- `camera_viewer.py`: opens OpenCV window, shows video, and maps keyboard to PTZ actions.
-- `config.py`: loads `.env`, validates config, parses RTSP URL, and builds camera config object.
-- `rtsp_capture.py`: opens RTSP stream and waits for a valid frame.
-- `ptz_controller.py`: ONVIF SOAP PTZ client (continuous move + stop).
-- `test_ptz.py`: probes common ONVIF PTZ endpoints and helps select a working one.
-- `requirements.txt`: Python dependencies.
-- `.env`: local runtime configuration (not committed).
+## Features
 
-## Python Version
+- **Dual-Mode Execution**:
+  - **Desktop Mode**: Borderless fullscreen OpenCV window with keyboard navigation (arrows/WASD) and Portuguese text-to-speech feedback via `espeak`.
+  - **Web Server Mode**: Lightweight Flask backend serving live MJPEG video with adaptive JPEG quality and mobile-first touch UI.
+- **Interactive Startup Prompt**: Starts in desktop mode by default after a 5-second countdown unless web mode is explicitly chosen.
+- **Dual Virtual Joysticks**: Low-latency directional pan/tilt and vertical adjustment powered by `nipplejs`.
+- **Camera Settings & Controls**:
+  - Reconnect / restart stream with automatic retry.
+  - Fullscreen toggle (default enabled).
+  - Dynamic resolution auto-detection and switching.
+- **Security-First Architecture**:
+  - Password hashing with `bcrypt`.
+  - Signed JWT session tokens in `HttpOnly; SameSite=Strict` cookies.
+  - Sliding-window in-memory rate limiting against brute-force attacks.
+  - Hardened HTTP security headers (CSP, X-Frame-Options DENY, nosniff).
+- **Hardened Docker Support**: Multi-stage image (< 180MB), non-root execution (`appuser`), read-only root filesystem, dropped capabilities (`ALL`), and 512MB RAM bounds.
 
-Recommended:
+---
 
-- Python `3.11` or `3.12` (best compatibility for camera/OpenCV workflows).
+## Configuration (`.env`)
 
-Current code also runs with Python `3.14`, but OpenCV/codec behavior can vary by build.
-
-## Virtual Environment Setup
-
-Windows PowerShell:
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -U pip
-pip install -r requirements.txt
-```
-
-Linux/macOS:
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -U pip
-pip install -r requirements.txt
-```
-
-## Environment Variables (`.env`)
-
-Create a `.env` file in the project root.
-
-Required:
-
-- `RTSP_URL`: full RTSP URL including user and password.
-
-Optional:
-
-- `ONVIF_PTZ_URL`: ONVIF PTZ endpoint URL. Default: `http://<camera_host>:5000/onvif/PTZ`
-- `RTSP_TRANSPORT`: `udp` or `tcp`. Default: `udp`
-- `OPENCV_FFMPEG_CAPTURE_OPTIONS`: usually auto-filled from `RTSP_TRANSPORT` (`rtsp_transport;udp` or `rtsp_transport;tcp`).
-
-Example:
+Copy `.env.example` to `.env` and fill in your camera parameters:
 
 ```env
+# Camera Connection
 RTSP_URL='rtsp://admin:your_password@192.168.100.2:554/onvif1'
 ONVIF_PTZ_URL='http://192.168.100.2:5000/onvif/PTZ'
 RTSP_TRANSPORT='udp'
+
+# Server & Startup Settings
+STARTUP_TIMEOUT=5
+WEB_PORT=8085
+WEB_USERNAME='admin'
+WEB_PASSWORD='your_web_password'
+
+# Video Stream Tuning
+MJPEG_FPS=15
+MJPEG_QUALITY=70
 ```
 
-## Run Commands
+---
 
-From activated virtual environment:
+## Quick Start
+
+### 1. Local Python Environment
 
 ```bash
-python app.py viewer
-python app.py ptz-test
-python app.py smoke-test
+# Create virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run interactive starter (prompts for mode)
+python app.py
+
+# Or start directly in desired mode:
+python app.py viewer     # Desktop OpenCV viewer
+python app.py server     # Web server on port 8085
+python app.py ptz-test   # ONVIF endpoint diagnostic
+python app.py smoke-test # Automated headless diagnostic
 ```
 
-What each command does:
+### 2. Docker & Docker Compose
 
-- `viewer`: opens video window and enables PTZ control with arrow keys (also `W/A/S/D`).
-- `ptz-test`: tests common ONVIF endpoints and prints the first working endpoint.
-- `smoke-test`: non-interactive PTZ + video validation.
+```bash
+# Build and start containerized web server
+docker compose up -d
 
-## Keyboard Controls
+# View container logs
+docker compose logs -f
+```
 
-Inside viewer window:
+---
 
-- Arrow keys: PTZ move
-- `W/A/S/D`: PTZ move alternative
-- `Q` or `Esc`: quit
+## Architecture & Documentation
 
-## Known Issue: HEVC Decoding (`PPS id out of range`)
+- [System Architecture](docs/ARCHITECTURE.md)
+- [REST API Reference](docs/api/REST-API.md)
+- [Security Policy](docs/SECURITY.md)
+- [Architecture Decision Records (ADRs)](docs/adr/)
+- [Changelog](CHANGELOG.md)
 
-Symptom:
+---
 
-- RTSP connection is reachable, but OpenCV logs errors like:
-  - `hevc ... PPS id out of range: 0`
-- `smoke-test` or `viewer` fails to get valid frames.
+## License
 
-What this usually means:
-
-- Stream codec/profile from camera is not being decoded correctly by the local OpenCV/FFmpeg build.
-
-Practical mitigations:
-
-1. In camera settings, switch stream codec to `H.264` (preferred) instead of `H.265/HEVC`.
-2. Try camera substream (often lower bitrate and easier decode).
-3. Keep `RTSP_TRANSPORT='udp'` for Yoosee setups (or test `tcp` if needed).
-4. Test with Python `3.11`/`3.12` + fresh venv.
-5. Validate the same RTSP URL in VLC first; if VLC fails too, issue is likely camera/path/config.
-
-## PTZ Network Note
-
-`ptz_controller.py` uses `requests.Session(trust_env=False)` so local PTZ calls are not hijacked by system proxy settings.
-
-## Security Notes
-
-- `.env` is gitignored.
-- Do not commit camera credentials.
-- Rotate camera password if credentials were ever exposed.
+MIT License.
